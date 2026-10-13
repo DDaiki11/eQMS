@@ -1,6 +1,6 @@
 # SPEC-001 — Spesifikasi lintas sistem e-QMS
 
-Status: draft design baseline, 9 Oktober 2026. Sumber: [requirements v0.2.0](../../docs/requirements.md). Semua ID FR/NFR dan AC di sana tetap normatif. Dokumen ini menyatukan interaksi lintas modul; tidak mengganti aturan detail requirements.
+Status: draft design baseline, diperbarui 13 Oktober 2026. Sumber: [requirements v0.3.0](../../docs/requirements.md). Semua ID FR/NFR dan AC di sana tetap normatif. Dokumen ini menyatukan interaksi lintas modul; tidak mengganti aturan detail requirements.
 
 ## S1. Pengguna dan batas akses
 
@@ -10,7 +10,9 @@ Sebagai Inspector saya melihat data milik/penugasan yang berizin; sebagai Superv
 - Akun nonaktif atau membership dicabut langsung memengaruhi request berikutnya, termasuk unduhan, hasil pencarian, ekspor dan AI.
 - Data tak berizin tidak bocor melalui judul, jumlah, grafik, snippet, notifikasi atau linked record.
 - Ketiadaan approver sah memblokir keputusan; tidak ada auto-approval atau eskalasi izin implisit.
-- Cakupan: FR-ACC-001–005, FR-COM-007–008; bukti utama AC-03, AC-05, AC-17, AC-22, AC-40.
+- Akun dipulihkan administrator dengan pencabutan seluruh sesi dan ganti password wajib; aktivasi tidak mengembalikan akses/assignment yang dicabut atau diganti. Assignment tidak layak ditandai Needs Reassignment; pengelola sumber mengganti atau mengonfirmasi ulang secara eksplisit, tanpa mengubah tenggat atau memulihkan assignment otomatis ketika akses pulih.
+- Penggantian approver hanya Manager berizin; administrator akun tanpa izin sumber tidak dapat mengganti. Histori independensi tetap berlaku. Reviewer/approver boleh aktor independen yang sama dengan dua keputusan berurutan pada versi yang sama.
+- Cakupan: FR-ACC-001–007, FR-COM-007–008, FR-COM-011; bukti utama AC-03, AC-05, AC-17, AC-22, AC-40, AC-46–49, AC-53.
 
 ## S2. Alur inti kualitas R1
 
@@ -20,8 +22,10 @@ Sebagai pelapor, saya menyimpan draft, melampirkan bukti dan mengajukan NCR; Sup
 - Reopen tindakan membuka kembali NCR/temuan/audit yang penutupannya bergantung padanya, dalam transaksi yang sama.
 - Audit memisahkan approval laporan dari penutupan tindak lanjut. Auditor tidak ditugaskan pada area tanggung jawab operasionalnya.
 - Dokumen memiliki revisi/working version yang jelas; approval sebelum effective date tidak mengganti revisi yang sedang berlaku.
+- Maksimal satu revisi dokumen Effective; belum terbit/Obsolete boleh nol. Penarikan tidak mengaktifkan Superseded otomatis.
+- Matriks FR-CAPA-008 menentukan revisi substansial, termasuk owner/PIC/due. Revisi kembali Draft dan menahan completion/effectiveness sampai approval ulang; due operasional lama tetap berlaku. Action identik hanya dibawa selesai dengan bukti dan konfirmasi reviewer/approver; action berubah dan evaluasi efektivitas wajib dikerjakan kembali. Komentar/bukti tambahan tidak menjadi jalan edit rencana.
 - Tugas dari workflow adalah proyeksi kewajiban; menyelesaikannya tidak dapat melewati workflow sumber. Tugas mandiri memiliki workflow sendiri.
-- Cakupan: FR-NCR-001–008, FR-CAPA-001–007, FR-AUD-001–010, FR-DOC-001–013, FR-TSK-001–005; AC-01–09, AC-13–16, AC-19–23, AC-43.
+- Cakupan: FR-NCR-001–008, FR-CAPA-001–008, FR-AUD-001–010, FR-DOC-001–013, FR-TSK-001–005; AC-01–09, AC-13–16, AC-19–23, AC-43–50, AC-55.
 
 ## S3. Operasional kualitas R2
 
@@ -29,11 +33,13 @@ Sebagai inspector, saya menjalankan inspeksi memakai quality plan Effective, men
 
 - Plan dan drawing di-snapshot saat inspeksi dibuat; perubahan revisi tidak memodifikasi hasil historis.
 - Kosong bukan nol; numerik dibandingkan sebelum pembulatan; unit dan presisi eksplisit.
-- Finalisasi memerlukan hasil wajib lengkap, reviewer independen dan NCR untuk kegagalan; amendment tidak menimpa versi final lama.
+- Submit dan finalisasi memerlukan hasil wajib lengkap/N/A sah serta NCR submitted berizin same-site bukan Draft/Rejected untuk kegagalan. Draft gagal boleh disimpan tanpa NCR. Finalisasi memerlukan reviewer independen; perubahan link saat Pending Review kembali In Progress dan submit ulang. Amendment tidak menimpa versi final lama.
+- N/A wajib diizinkan snapshot dan beralasan; unit semua wajib N/A dikecualikan dari denominator. Expected pairs dibekukan per unit/karakteristik; sedikitnya satu hasil wajib Pass/Fail nyata diperlukan agar unit eligible.
 - Kalibrasi Fail yang diajukan segera menahan alat. Pelepasan membutuhkan hasil lulus terverifikasi dan keputusan independen; hasil inspeksi terdampak dinilai, tidak ditulis ulang otomatis.
 - Maintenance memakai kalender tetap, occurrence unik dan verifikasi; menyelesaikan work order tidak meluluskan kalibrasi.
+- Edit jadwal dan scheduler memakai lock identitas jadwal yang sama. Versi baru hanya memengaruhi occurrence belum dibuat; snapshot order utuh dan unique identitas jadwal/tanggal berlaku lintas versi.
 - Pemasok memiliki status per site, sertifikat dan evaluasi berversi; skor/expiry tidak mengubah status approval tanpa keputusan.
-- Cakupan: FR-QPL-001–006, FR-INS-001–007, FR-CAL-001–006, FR-MNT-001–005, FR-SUP-001–006; AC-25–34, AC-41–42.
+- Cakupan: FR-QPL-001–006, FR-INS-001–007, FR-CAL-001–006, FR-MNT-001–005, FR-SUP-001–006; AC-25–34, AC-41–42, AC-49, AC-51–52, AC-54.
 
 ## S4. Kompetensi dan compliance R3
 
@@ -55,7 +61,7 @@ Sebagai pengguna saya dapat menelusuri nilai dashboard ke daftar sumber berizin,
 - Lampiran quarantine tidak dapat dipakai sebagai bukti siap review; file berbahaya tidak dipublikasikan.
 - Waktu kejadian disimpan UTC, due date adalah tanggal perusahaan; locale tidak mengubah zona waktu.
 - Formula metrik mengikuti bagian 4.4 requirements, termasuk populasi NCR, jumlah unit sampel, biaya tercatat, aging dan pengecualian filter.
-- Cakupan: FR-ANA-001–012, FR-LOG-001–006, FR-COM-001–010 dan seluruh NFR; AC-10–12, AC-14–19, AC-23–24, AC-29, AC-40–41.
+- Cakupan: FR-ANA-001–012, FR-LOG-001–006, FR-COM-001–011 dan seluruh NFR; AC-10–12, AC-14–19, AC-23–24, AC-29, AC-40–41, AC-46–48, AC-52–55.
 
 ## S6. Perilaku kegagalan dan batas produk
 

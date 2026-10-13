@@ -2,9 +2,9 @@
 
 | Atribut | Nilai |
 | --- | --- |
-| Versi desain | 0.1.0 |
-| Tanggal | 9 Oktober 2026 |
-| Baseline kebutuhan | [Requirements v0.2.0](requirements.md) yang ada di working tree saat desain disusun |
+| Versi desain | 0.2.0 |
+| Tanggal | 13 Oktober 2026 |
+| Baseline kebutuhan | [Requirements v0.3.0](requirements.md) |
 | Stack wajib | Next.js, TypeScript, PostgreSQL, Prisma, Docker |
 | Status | Desain untuk review dan dasar implementasi; belum ada aplikasi, migrasi, atau pengujian runtime |
 | Cakupan | R1, R2, R3; rincian implementasi mengikuti dependensi tiap rilis |
@@ -41,7 +41,8 @@ Paket `001-system-design` adalah spesifikasi lintas sistem. Sebelum coding satu 
 | Otorisasi | Database session dan policy server berdasarkan role + site + assignment + independensi + izin modul |
 | Konsistensi | Mutasi, audit event, keputusan, task projection dan outbox ditulis dalam satu transaksi |
 | Pekerjaan latar | Antrean PostgreSQL dengan lease, retry dan deduplikasi; tidak bergantung pada timer proses web |
-| Dokumen | Revisi immutable setelah submit; working version baru saat returned; tepat satu versi Effective bila ada revisi berlaku |
+| Dokumen | Revisi immutable setelah submit; working version baru saat returned; maksimal satu Effective, nol sebelum terbit/setelah penarikan |
+| Perubahan dan personel | Matriks revisi CAPA, carry-forward terkonfirmasi, assignment tertahan dan penggantian eksplisit; reviewer/approver independen boleh sama dengan keputusan terpisah |
 | File | Adapter private storage, quarantine dan scan sebelum tersedia; unduhan lewat gateway terautorisasi |
 | Deployment | Docker Compose untuk development dan baseline satu host internal; produksi memerlukan backup di luar host dan TLS |
 | AI | Adapter provider terpisah, job eksplisit, bukti terpilih dan review manusia; default nonaktif sampai Q-19 selesai |

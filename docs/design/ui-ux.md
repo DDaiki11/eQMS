@@ -107,6 +107,11 @@ Compliance: selector standard/edition/assessment; header menampilkan Approved/pr
 
 ## U7. Responsivitas, state dan bahasa
 
+- Sumber dengan penugasan tidak layak menampilkan “Perlu penggantian penugasan” beserta tenggat/overdue asli; status workflow tetap terlihat. Pengelola berizin dapat memilih pengganti dengan alasan atau mengonfirmasi ulang setelah akses pulih. Riwayat personel tidak dihapus; administrator akun tidak melihat isi sumber tanpa izin.
+- Form revisi CAPA menampilkan perubahan yang memicu approval ulang, tenggat operasional dan usulan secara terpisah, serta action selesai yang diusulkan dibawa dengan bukti lama. Reviewer/approver mengonfirmasi carry-forward eksplisit; UI menjelaskan perlunya evaluasi efektivitas baru.
+- Inspeksi Fail boleh disimpan draft; submit menunjukkan NCR yang wajib ditautkan. N/A hanya tersedia jika snapshot mengizinkan dan wajib alasan; unit seluruh wajib N/A diberi keterangan dikecualikan dari rate. Dokumen tanpa Effective menampilkan pesan tidak ada revisi berlaku, tanpa membuka Superseded sebagai default.
+- Login setelah reset password hanya membuka form ganti password/logout; menu dan API bisnis baru tersedia setelah ganti password berhasil. Pesan error tidak menampilkan credential sementara.
+
 - Uji lebar 360/768/1440 px. Sidebar menjadi drawer pada layar sempit; panel detail menjadi halaman penuh; dashboard satu kolom. Tabel/grid boleh horizontal scroll dengan row identity tetap terlihat dan aksi tidak terpotong.
 - Semua halaman memiliki loading skeleton, no records, no match, permission denied/not found, dependency error/retry, conflict dan unsaved state. Empty state tidak diisi data demo produksi.
 - Grafik mempunyai tabel alternatif; progres job menggunakan text state, bukan spinner tanpa batas. Polling berhenti saat tab tidak aktif dan refresh saat kembali.

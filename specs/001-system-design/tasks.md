@@ -8,22 +8,25 @@ Semua checklist di bawah **belum dikerjakan**. Artefak yang selesai pada permint
 - [ ] Scaffold struktur modular, environment validation, private DTO, session revocation, role/site/grant policy, master data, locale id/en/ja dan bootstrap tanpa default credential.
 - [ ] Buat schema/migration shared registry, number allocation, command receipt, outbox/job, append-only audit, file quarantine/scan/gateway dan task assignment primitives.
 - [ ] Buat Compose web/worker/db/migrator/scanner, health endpoints, structured log, CI unit/integration/build dan backup/restore baseline.
+- [ ] Implementasi reset password administratif dengan sesi terbatas, invalidasi/konfirmasi ulang assignment dan penggantian personel terotorisasi; uji nonaktif/cabut role/site/grant, pemulihan tanpa sesi/assignment lama, serta approve versus reassign (AC-46–48/53).
 
-Requirement: FR-ACC-001–005, FR-COM-001–010, FR-LOG-001–006, seluruh NFR fondasi. Bukti: AC-03/14/15/17/18/22/40, rollback transaction, revoke next request, startup fresh/upgrade, privileged-role separation.
+Requirement: FR-ACC-001–007, FR-COM-001–011, FR-LOG-001–006, seluruh NFR fondasi. Bukti: AC-03/14/15/17/18/22/40/46/47/48/53, rollback transaction, revoke next request, startup fresh/upgrade, privileged-role separation.
 
 ## T02 — NCR dan CAPA (R1)
 
 - [ ] Buat `specs/003-ncr-capa` dengan seluruh status/guard/field validation, link graph dan snapshot cycle.
 - [ ] Implementasi pelaporan/triage/containment, plan review/approval, actions, effectiveness, closure/reopen coordinator dan cost corrections.
 - [ ] Hubungkan UI detail/form, task projection, notification, attachment, audit dan export query scope.
+- [ ] Terapkan matriks field substansial, operational due versus proposed due, carry-forward action identik dengan dua konfirmasi, efektivitas baru dan penahanan action saat Draft; uji semua field, pergantian PIC, satu orang review/approve independen dan race edit/approve (AC-44/45/47/49/55).
 
-Requirement: FR-NCR-001–008, FR-CAPA-001–007. Bukti: AC-01/02/04/05/06/14/15/16/23; race child-action edit versus close dan graph link edit versus reopen.
+Requirement: FR-NCR-001–008, FR-CAPA-001–008. Bukti: AC-01/02/04/05/06/14/15/16/23/44/45/47/49/55; race child-action edit versus close dan graph link edit versus reopen.
 
 ## T03 — Dokumen terkendali (R1)
 
 - [ ] Buat `specs/004-documents`; working version versus business revision, classifications/site scope dan effective-date policy.
 - [ ] Implementasi folder/preview, revision content immutable, review/approval, manual/scheduled publish, withdraw/obsolete, linked records dan acknowledgment (Should).
 - [ ] Uji publikasi paralel, scheduler setelah withdraw, ACL preview/range, revisi superseded dan file scan pending.
+- [ ] Uji nol Effective sebelum terbit/setelah penarikan tanpa fallback Superseded, dan review/approve oleh Manager independen yang sama pada versi yang sama (AC-49/50).
 
 Requirement: FR-DOC-001–013. Bukti: AC-05/08/09/19/22/43; tepat satu Effective setelah publish, tanpa menghilangkan history.
 
@@ -39,6 +42,7 @@ Requirement: FR-AUD-001–010. Bukti: AC-07/16/43, auditor area conflict, source
 - [ ] Buat `specs/006-tasks-analytics`; kontrak population/filter/DTO dan standalone versus source tasks.
 - [ ] Implementasi list tasks, notifications, scope-safe search, dashboard, Pareto/trend/aging/costs, CSV dan previous-period comparison (Should).
 - [ ] Uji tiga bahasa, keyboard/viewport, 50 pengguna/100.000 NCR, security dan restore drill; tutup gate R1.
+- [ ] Tampilkan Needs Reassignment terpisah dari workflow dan overdue, notifikasi pengelola sesuai ACL, riwayat pergantian dan aksi konfirmasi ulang; uji AC-46–48/53 bersama fondasi.
 
 Requirement: FR-TSK-001–005, FR-ANA-001–010, FR-COM-003–004/007–008. Bukti: AC-10/11/12/13/20/21/22/23/24/40; NFR-PER-001, NFR-UX-001, NFR-REL-001.
 
@@ -47,6 +51,7 @@ Requirement: FR-TSK-001–005, FR-ANA-001–010, FR-COM-003–004/007–008. Buk
 - [ ] Buat `specs/007-plans-calibration`; tutup Q-11/13, precision dan approval plan yang terpisah secara keputusan.
 - [ ] Implementasi part/unit/equipment, drawing balloon manual, characteristics/snapshot, plan publication dan exports.
 - [ ] Implementasi calibration record/verification, hold/release, due date, status history dan impact review; register supplier minimal sebelum inspeksi incoming.
+- [ ] Uji review/approval quality plan berurutan oleh Manager independen yang sama, versi berubah dan konflik histori author (AC-49).
 
 Requirement: FR-QPL-001–006, FR-CAL-001–006, FR-COM-009–010, FR-SUP-001 (identity). Bukti: AC-25/27/30/41/42; unit and coordinate boundaries, failed calibration block atomic.
 
@@ -55,6 +60,7 @@ Requirement: FR-QPL-001–006, FR-CAL-001–006, FR-COM-009–010, FR-SUP-001 (i
 - [ ] Buat `specs/008-inspections`; expected sample pairs, quantity scope, timestamp alat, kebijakan lot Q-12 dan N/A rules.
 - [ ] Implementasi grid/decimal evaluation, measurement references, submit/review/finalize, NCR link, disposition dan amendment/PDF.
 - [ ] Implementasi defect rate unit-sample dan final revision population; uji 100 × 30 pada 20 operator.
+- [ ] Uji draft Fail tanpa NCR, guard NCR sejak submit dan recheck finalize, penggantian link/re-submit, allow_na snapshot/alasan serta denominator all-N/A (AC-28/51/52).
 
 Requirement: FR-INS-001–007, FR-ANA-011–012, NFR-DAT-003, NFR-PER-002. Bukti: AC-25/26/27/28/29/30; measurement versus calibration hold race.
 
@@ -62,6 +68,7 @@ Requirement: FR-INS-001–007, FR-ANA-011–012, NFR-DAT-003, NFR-PER-002. Bukti
 
 - [ ] Buat `specs/009-maintenance`; recurrence/anchor/overdue, schedule revision dan asset retirement.
 - [ ] Implementasi schedule generation, work orders/checklist/verifier, postpone/cancel, audit/notifications dan link NCR/CAPA.
+- [ ] Implementasi ScheduleVersion, snapshot order, lock parent bersama edit/scheduler dan unique occurrence lintas versi; uji race, retry dan cancelled occurrence (AC-54).
 
 Requirement: FR-MNT-001–005, FR-COM-009, FR-ANA-011, NFR-JOB-001. Bukti: AC-31/32/41; restart worker, duplicate occurrence dan leap-year dates.
 
@@ -100,5 +107,6 @@ Requirement: FR-AI-001–004, NFR-AI-001, NFR-JOB-001. Bukti: AC-38/39/43; penil
 - [ ] Pada setiap T01–T12, perbarui traceability requirement→feature spec→task→test→hasil; status test hanya lulus bila eksekusi dan buktinya tersedia.
 - [ ] Catat Should yang ditunda, accepted ADR, open business questions yang sudah ditutup, migration compatibility dan operational runbook.
 - [ ] Jangan menandai rilis lengkap hanya karena UI tersedia; policy, audit, recovery, scan, NFR dan acceptance harus terverifikasi.
+- [ ] Turunkan setiap guard requirement Must menjadi fixture positif/negatif bernama; selesaikan AC-44–55 pada task pemiliknya dan lengkapi baris “uji turunan” sebelum fitur dinyatakan ready. Jumlah AC tidak dianggap ukuran kelulusan atau cakupan test runtime.
 
 Requirement: NFR-TEST-001 dan seluruh NFR. Bukti: test report per rilis, migration diff, restore timings, load profile, security/UX review serta daftar known limitations.

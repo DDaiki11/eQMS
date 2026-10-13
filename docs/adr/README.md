@@ -1,6 +1,6 @@
 # Architecture Decision Records
 
-Tanggal: 9 Oktober 2026. Status semua ADR: **diusulkan sebagai baseline desain**, kecuali pilihan lima teknologi inti yang sudah diminta pengguna. Lihat [desain](../design.md) dan [requirements](../requirements.md).
+Tanggal awal: 9 Oktober 2026; diperbarui 13 Oktober 2026. Status semua ADR: **diusulkan sebagai baseline desain**, kecuali pilihan lima teknologi inti yang sudah diminta pengguna. Lihat [desain](../design.md) dan [requirements](../requirements.md).
 
 ## ADR-001 — Modular monolith dengan web dan worker
 
@@ -24,7 +24,9 @@ Requirement: FR-LOG-003, FR-CAPA-007, NFR-DAT-001, NFR-JOB-001.
 
 **Konsekuensi:** tambahan query session/policy yang perlu indeks; test semua entry point wajib. Bisa menambah RLS sebagai defense tambahan setelah pooling dan worker context dibuktikan, bukan menggantikan policy domain.
 
-Requirement: FR-ACC-001–005, FR-DOC-007, FR-COM-007, FR-AI-004.
+Requirement: FR-ACC-001–007, FR-DOC-007, FR-COM-007/011, FR-AI-004.
+
+Pembaruan v0.3.0: pencabutan akses segera menahan penugasan tanpa menunda revoke; konfirmasi ulang/penggantian dilakukan pengelola sumber dengan histori independensi tetap. Reset administratif memakai sesi ganti password terbatas dan tidak memulihkan sesi/grant/assignment lama. Konsekuensinya, read/command harus memakai invalidasi terkini walau proyeksi worker terlambat.
 
 ## ADR-003 — State machine, snapshots dan transaksi audit
 
@@ -37,6 +39,8 @@ Requirement: FR-ACC-001–005, FR-DOC-007, FR-COM-007, FR-AI-004.
 **Konsekuensi:** migration/SQL constraints dan concurrency tests diperlukan; payload historis bertambah. Snapshot immutable tidak berarti event sourcing penuh: current domain tables tetap sumber state, audit adalah histori perubahan.
 
 Requirement: FR-LOG-001–006, FR-DOC-003–008, FR-QPL-004–005, NFR-DAT-001–003.
+
+Pembaruan v0.3.0: FR-CAPA-008 menentukan revisi substansial serta carry-forward action identik dengan konfirmasi reviewer dan approver; histori efektivitas tetap tersimpan tetapi hasilnya tidak dibawa. Nol Effective diperbolehkan sebelum terbit/setelah penarikan. Lock/version sumber menyerialkan approval dengan edit atau penggantian personel; lock identitas jadwal menyerialkan perubahan versi dan generation order. Reviewer/approver boleh sama sesuai requirements bagian 3.1; dua keputusan pada subject yang sama tetap wajib. Konsekuensinya, model perlu membedakan due operasional/usulan dan menyimpan provenance carry-forward serta ScheduleVersion.
 
 ## ADR-004 — PostgreSQL queue dan private storage adapter
 

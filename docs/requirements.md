@@ -2,9 +2,9 @@
 
 | Atribut | Nilai |
 | --- | --- |
-| Versi | 0.2.0 |
+| Versi | 0.3.0 |
 | Status | Draft kebutuhan diperluas |
-| Tanggal | 9 Oktober 2026 |
+| Tanggal | 13 Oktober 2026 |
 | Pendekatan | Spec-driven development |
 | Target rilis | Aplikasi web internal; R1 fondasi/MVP, R2 operasional kualitas, R3 kompetensi dan compliance |
 
@@ -154,6 +154,8 @@ Author quality plan tidak boleh mereview/menyetujui revisinya sendiri. Pengisi i
 
 **Independen:** author tidak boleh mereview atau menyetujui revisi dokumennya sendiri. Penyusun/pelaksana CAPA tidak boleh menjadi reviewer, verifier efektivitas, atau approver penutupannya sendiri. Pelapor NCR tidak boleh menyetujui penutupan NCR sendiri. Lead auditor tidak boleh menyetujui laporan atau penutupan auditnya sendiri. Jika pengguna yang memenuhi syarat belum tersedia, workflow tetap tertahan; sistem tidak melewati kontrol ini secara otomatis.
 
+Untuk CAPA, dokumen, dan quality plan, reviewer dan approver **boleh orang yang sama** bila aktor memenuhi role/izin kedua tahap dan independen dari seluruh author/pelaksana terkait. Review dan approval tetap dua keputusan berurutan pada versi yang sama; approval tanpa review sah ditolak. Penyusun/pelaksana CAPA juga tidak boleh menyetujui rencananya sendiri. Independensi memakai histori peserta pada revisi/siklus, bukan hanya PIC saat ini; pergantian personel tidak menghapus konflik. Aturan ini adalah baseline produk, bukan klaim pemenuhan standar industri tertentu; perubahan yang lebih ketat mengikuti Q-01.
+
 ### 3.2 Requirements akses
 
 | ID | Requirement | Prioritas |
@@ -163,6 +165,8 @@ Author quality plan tidak boleh mereview/menyetujui revisinya sendiri. Pengisi i
 | FR-ACC-003 | Akses langsung melalui URL/API tidak boleh melewati pembatasan UI atau memperlihatkan keberadaan data site lain. | Must |
 | FR-ACC-004 | Perubahan role/site hanya dapat dilakukan pengguna berizin administratif dan selalu tercatat. Akun nonaktif tidak dapat memakai sesi lama. | Must |
 | FR-ACC-005 | Pengguna tidak boleh menaikkan hak aksesnya sendiri. Perubahan izin berlaku pada request berikutnya, termasuk untuk sesi yang sedang aktif. | Must |
+| FR-ACC-006 | Akun dibuat administrator tanpa public signup. Reset password hanya oleh pengguna berizin administratif dengan alasan dan audit event, mencabut seluruh sesi, serta mewajibkan ganti password sebelum operasi bisnis. Credential sementara disampaikan melalui prosedur internal terverifikasi, tidak melalui log/notifikasi aplikasi; nilai lama tidak ditampilkan. Aktivasi kembali tidak memulihkan sesi, izin yang sudah dicabut, atau assignment yang sudah diganti. Tidak tersedia pemulihan mandiri melalui email pada baseline. | Must |
+| FR-ACC-007 | Penonaktifan akun, pencabutan site/izin modul, atau perubahan role segera membuat penugasan yang tidak lagi memenuhi syarat tidak dapat dikerjakan. Sumber menampilkan Needs Reassignment sebagai indikator terpisah dari status workflow, tetap mempertahankan tenggat/overdue dan histori. Penggantian mengikuti FR-COM-011; keputusan yang sudah sah tidak dibatalkan hanya karena perubahan personel. | Must |
 
 ## 4. Requirements fungsional
 
@@ -187,6 +191,7 @@ Author quality plan tidak boleh mereview/menyetujui revisinya sendiri. Pengisi i
 | FR-CAPA-005 | Verifikasi efektivitas mencatat kriteria keberhasilan, waktu evaluasi, verifier independen, hasil, dan bukti. Hasil gagal mengembalikan CAPA ke perencanaan dengan riwayat tetap utuh. | Must |
 | FR-CAPA-006 | Manager hanya dapat menutup CAPA setelah semua action item selesai dan verifikasi efektivitas lulus. | Must |
 | FR-CAPA-007 | CAPA/NCR tertutup dapat dibuka kembali oleh Manager dengan alasan, owner, dan tenggat baru. Relasi sumber yang perlu dibuka kembali diperiksa dalam transaksi yang sama. | Must |
+| FR-CAPA-008 | Perubahan rencana setelah approval mengikuti matriks perubahan di bawah, dicatat sebagai revisi beralasan, dan tidak menimpa rencana, keputusan, action, atau hasil efektivitas sebelumnya. Server menentukan kebutuhan approval ulang berdasarkan field yang berubah, bukan pilihan bebas pengguna. | Must |
 
 **Alur NCR:** `Draft → Submitted → Under Review → In Progress → Pending Closure → Closed`.
 
@@ -204,6 +209,17 @@ Author quality plan tidak boleh mereview/menyetujui revisinya sendiri. Pengisi i
 - `Closed → Draft`: reopen; rencana baru melalui review/approval kembali.
 
 Containment darurat pada NCR dapat dilakukan sebelum approval rencana CAPA dan harus dicatat. Status workflow hanya berubah lewat transisi yang diizinkan server, bukan edit bebas.
+
+**Matriks perubahan CAPA setelah approval (FR-CAPA-004/008):**
+
+| Perubahan | Perlakuan wajib |
+| --- | --- |
+| Problem statement, akar penyebab/metode, risiko preventif, jenis tindakan, atau tautan sumber yang menopang closure | Substansial; owner yang masih berizin atau Supervisor/Manager berizin mengajukan revisi beralasan; CAPA kembali Draft dan wajib review/approval ulang. |
+| Penambahan/penghapusan/perubahan ruang lingkup action, owner CAPA/PIC action, tenggat CAPA/action, kriteria keberhasilan atau waktu evaluasi efektivitas | Substansial; mekanisme revisi dan approval ulang yang sama, termasuk pergantian PIC karena akun nonaktif/cuti. Tenggat baru belum mengganti tenggat operasional yang disetujui sampai revisi disetujui. |
+| Komentar tambahan, bukti implementasi tambahan, atau progres action yang telah disetujui | Tidak substansial; tambah record/event tanpa menimpa bukti lama, tidak mengubah isi rencana atau melewati guard completion. Koreksi bukti yang membatalkan dasar keputusan memerlukan revisi substansial. |
+| Penggantian reviewer, verifier, atau approver yang belum mengambil keputusan | FR-COM-011; tidak mengubah isi rencana. Keputusan sah pada versi yang sama tetap berlaku; independensi diperiksa ulang. |
+
+Saat revisi substansial dibuat, approval lama tetap historis dan tidak berlaku untuk revisi baru. Penyelesaian action dan verifikasi efektivitas baru ditahan sampai approval ulang; containment darurat tetap tersedia di NCR. Action selesai pada revisi lama tidak otomatis selesai pada revisi baru: action yang isi, PIC, dan tenggatnya identik boleh diajukan untuk dibawa sebagai selesai dengan referensi bukti lama, lalu harus dikonfirmasi eksplisit oleh reviewer dan approver pada revisi baru. Action yang berubah dimulai kembali sebagai belum selesai. Verifikasi efektivitas wajib baru; hasil lulus lama tidak dibawa. CAPA Closed wajib melalui reopen sebelum revisi; sumber terkait mengikuti propagasi reopen. Perubahan pada rencana yang sedang review/approval mengembalikannya ke Draft dan membatalkan keberlakuan review sebelumnya untuk versi baru.
 
 ### 4.2 Audit internal dan temuan
 
@@ -238,7 +254,7 @@ Containment darurat pada NCR dapat dilakukan sebelum approval rencana CAPA dan h
 | FR-DOC-003 | File atau metadata revisi yang sudah diajukan tidak dapat ditimpa. Pengembalian memungkinkan author membuat versi kerja berikutnya dengan riwayat pengajuan terjaga. | Must |
 | FR-DOC-004 | Supervisor/Manager independen melakukan review; Manager independen melakukan approval. Penolakan wajib disertai komentar. | Must |
 | FR-DOC-005 | Approval tidak otomatis membuat revisi berlaku sebelum tanggal efektif. Publikasi hanya boleh terjadi setelah approval dan tanggal efektif tercapai. | Must |
-| FR-DOC-006 | Tepat satu revisi dapat berstatus Effective per dokumen. Aktivasi revisi baru dan perubahan revisi sebelumnya menjadi Superseded harus atomik. | Must |
+| FR-DOC-006 | Maksimal satu revisi berstatus Effective per dokumen. Dokumen yang belum pernah terbit atau revisi efektifnya telah ditarik boleh memiliki nol revisi Effective. Publikasi sah menghasilkan tepat satu Effective; aktivasi revisi baru dan perubahan revisi sebelumnya menjadi Superseded harus atomik. Penarikan tidak mengaktifkan revisi lama otomatis. | Must |
 | FR-DOC-007 | Pembaca secara default melihat revisi Effective. Revisi lama tersedia bagi pengguna berizin dengan label Superseded/Obsolete yang jelas. Draft hanya terlihat bagi author dan pihak workflow berizin. | Must |
 | FR-DOC-008 | Revisi Superseded/Obsolete tidak dapat diubah atau digunakan sebagai dokumen aktif. Penarikan dokumen dilakukan Manager dengan alasan, tanpa menghapus histori. | Must |
 | FR-DOC-009 | Pencarian mendukung nomor, judul, jenis, site, status, dan owner. Hasil menunjukkan revisi serta tanggal efektif. | Must |
@@ -296,7 +312,7 @@ Dashboard menyajikan **status saat ini**, bukan rekonstruksi status pada tanggal
 | Biaya scrap/rework | Jumlah nilai entri biaya aktif setelah koreksi, dikelompokkan menurut tanggal biaya; dapat mencakup NCR yang sudah closed. Mata uang berbeda tidak dijumlahkan. Kelengkapan pencatatan biaya ditampilkan; kosong bukan nol. |
 | NCR per site | Populasi NCR sama dengan tren, dikelompokkan per site yang berizin; tidak menampilkan nama/jumlah site di luar akses. |
 | Inspeksi gagal | Jumlah laporan final unik yang memiliki minimal satu karakteristik sampel Fail, berdasarkan tanggal finalisasi; bukan jumlah sel gagal. Disposisi tidak menghapus hasil gagal. |
-| Defect rate sampel | 100 × jumlah unit sampel unik dengan minimal satu Fail / jumlah unit sampel yang seluruh karakteristik wajibnya sudah dievaluasi, dari laporan final dan filter terpilih. Dua karakteristik gagal pada unit sama tetap satu unit gagal. Penyebut nol ditampilkan N/A. |
+| Defect rate sampel | 100 × jumlah unit sampel eligible unik dengan minimal satu Fail / seluruh unit sampel eligible, dari laporan final dan filter terpilih. Eligible berarti semua pasangan karakteristik wajib selesai dengan hasil nyata/N/A sah dan sedikitnya satu hasil wajib Pass/Fail nyata; unit semua wajib N/A dikecualikan. Dua karakteristik gagal pada unit sama tetap satu unit gagal. Penyebut nol ditampilkan N/A. |
 | Kalibrasi jatuh tempo | Alat aktif dengan due date dalam 30 hari kalender ke depan termasuk hari ini; overdue adalah tanggal sebelum hari ini. Alat tanpa riwayat valid dilaporkan sebagai belum terkalibrasi, bukan dianggap valid. |
 | Work order overdue | Work order selain Completed/Cancelled yang due date-nya sudah lewat. Periode memakai due date. |
 | Sertifikat pemasok kedaluwarsa | Sertifikat aktif yang tanggal kedaluwarsanya sebelum tanggal hari ini; tanpa tanggal ditandai belum lengkap. Periode memakai tanggal kedaluwarsa. |
@@ -332,6 +348,14 @@ Append-only pada aplikasi tidak sama dengan perlindungan terhadap administrator 
 | FR-COM-008 | Pengguna dapat memilih Indonesia, Inggris, atau Jepang; preferensi tersimpan. Label, validasi, status tampilan, serta tanggal/angka mengikuti locale; kode status/API tetap stabil dan zona waktu mengikuti perusahaan. Input pengguna tidak diterjemahkan otomatis. | Must |
 | FR-COM-009 | Reminder jatuh tempo berlaku untuk kalibrasi, maintenance, sertifikat, dan training pada rilis modul terkait. Baseline reminder 30/7/1 hari sebelum tenggat dan satu saat overdue; kunci deduplikasi menyertakan entitas, siklus, penerima, serta ambang. | Must |
 | FR-COM-010 | R1 menyediakan mata uang perusahaan untuk biaya NCR. R2 menambah master part/revisi, satuan ukur, alat/aset, pemasok, dan interval jadwal; R3 menambah jabatan, kompetensi, dan katalog standar/klausul berversi. Penonaktifan tidak merusak referensi historis. | Must |
+| FR-COM-011 | Supervisor/Manager berizin pada sumber dapat mengganti owner/PIC/reviewer/verifier; penggantian approver hanya oleh Manager berizin. Inspector hanya dapat mengatur tugas mandiri miliknya sesuai FR-TSK-001, bukan mengganti pejabat workflow. Administrator tanpa izin sumber tidak memperoleh kewenangan penugasan. Pengganti harus aktif, berizin site/sumber/modul, memenuhi role tahap dan independensi; alasan, aktor, personel lama/baru, waktu, dan versi sumber wajib dicatat. Berlaku sejak R1 dan diwarisi modul R2/R3; aturan revisi CAPA tetap berlaku. | Must |
+
+**Kelangsungan penugasan (FR-ACC-007/FR-COM-011):**
+
+- Pencabutan akses tidak boleh ditunda karena masih ada tugas terbuka. Perintah workflow selalu memeriksa kelayakan terkini, termasuk bila worker belum memperbarui proyeksi tugas. Status sumber tidak otomatis maju, batal, atau selesai.
+- Penggantian saat cuti dilakukan eksplisit dengan alasan; tidak meminjam akun, menyalin role, memberi akses otomatis, atau otomatis kembali ke PIC lama setelah cuti. Penugasan lama ditandai diganti dan histori keputusan/bukti tetap tersimpan. Pemulihan akses saja tidak mengaktifkan ulang penugasan yang tertahan: pengelola harus mengonfirmasi penugasan kembali melalui command yang sama.
+- Notifikasi kebutuhan penggantian dikirim satu kali per perubahan akses/assignment kepada Supervisor/Manager yang memiliki kewenangan penugasan dan hak baca sumber. Penggantian memberi notifikasi kepada pengganti dan personel lama hanya bila masih berhak membaca sumber. Jika tidak ada pengelola sah, indikator tetap tampil pada sumber bagi pembaca berizin; daftar akun terdampak tersedia bagi administrator tanpa membocorkan judul/bukti sumber, untuk ditindaklanjuti melalui pengelolaan akses normal.
+- Penggantian dan keputusan yang bersamaan harus diserialkan atau ditolak sebagai konflik versi. Penggantian tidak mengubah tenggat otomatis atau membatalkan keputusan yang telah sah; keputusan baru memeriksa assignment, versi, dan seluruh histori independensi. PIC baru CAPA tetap menunggu approval rencana baru sebelum pelaksanaan.
 
 ### 4.7 Task management (R1)
 
@@ -349,7 +373,7 @@ Append-only pada aplikasi tidak sama dengan perlindungan terhadap administrator 
 | --- | --- | --- |
 | FR-QPL-001 | Quality plan memuat nomor unik, part/revisi, site, proses, jenis inspeksi, author, revisi plan, serta drawing PDF/gambar yang diunggah atau ditautkan ke revisi dokumen terkendali. | Must |
 | FR-QPL-002 | Pengguna menambah/memindah balloon bernomor pada halaman drawing, menautkannya ke karakteristik inspeksi, serta mengatur urutan. Koordinat tersimpan relatif terhadap halaman sehingga tetap sesuai saat zoom. Nomor karakteristik unik dalam revisi. | Must |
-| FR-QPL-003 | Karakteristik memuat deskripsi, tipe numerik/atribut/catatan, unit, nominal serta LSL/USL bila numerik, metode, jenis alat, jumlah sampel bilangan bulat positif, dan status wajib. Validasi LSL ≤ nominal ≤ USL; karakteristik atribut mempunyai kriteria Pass/Fail eksplisit. | Must |
+| FR-QPL-003 | Karakteristik memuat deskripsi, tipe numerik/atribut/catatan, unit, nominal serta LSL/USL bila numerik, metode, jenis alat, jumlah sampel bilangan bulat positif, status wajib, dan allow_na (default false). Izin N/A dibekukan dalam snapshot plan; pemakaiannya wajib beralasan. Validasi LSL ≤ nominal ≤ USL; karakteristik atribut mempunyai kriteria Pass/Fail eksplisit. | Must |
 | FR-QPL-004 | Revisi plan melalui Draft → In Review → Approved → Effective → Superseded. Reviewer Supervisor/Manager dan approver Manager harus independen dari author. Penolakan kembali Draft dengan alasan. Tanggal efektif serta aktivasi satu revisi aktif per identitas plan diterapkan atomik. | Must |
 | FR-QPL-005 | Inspeksi menggunakan snapshot revisi Effective; perubahan plan/drawing memerlukan revisi baru dan tidak mengubah inspeksi berjalan atau historis. Revisi Approved dapat Withdrawn sebelum efektif; Effective dapat Obsolete oleh Manager dengan alasan, mencegah inspeksi baru. | Must |
 | FR-QPL-006 | Plan dapat ditinjau sebagai drawing dan tabel karakteristik; ekspor PDF menyertakan identitas part, revisi, unit, toleransi, metode, sampling, dan status. GD&T kompleks boleh direkam sebagai referensi dengan keputusan manual, tanpa klaim evaluasi otomatis. | Must |
@@ -362,11 +386,13 @@ Append-only pada aplikasi tidak sama dengan perlindungan terhadap administrator 
 | FR-INS-002 | Grid karakteristik × unit sampel mendukung input numerik/atribut, simpan draft, catatan, dan bukti. ID unit sampel stabil dalam laporan; kosong adalah Not Measured, bukan nol/Pass. Satuan berbeda ditolak kecuali konversi eksplisit yang tervalidasi tersedia. | Must |
 | FR-INS-003 | Untuk karakteristik numerik sederhana, Pass jika LSL ≤ nilai ≤ USL; nilai di luar batas Fail. Evaluasi memakai presisi tersimpan sebelum pembulatan tampilan. Atribut memakai keputusan serta bukti; catatan/GD&T manual tidak dihitung numerik otomatis. | Must |
 | FR-INS-004 | Tiap pengukuran yang memerlukan alat merekam alat, waktu ukur, dan referensi kalibrasi valid pada waktu tersebut. Alat overdue, tidak terkalibrasi, atau Out of Service tidak boleh dipakai untuk pengukuran baru; pemeriksaan dilakukan server. | Must |
-| FR-INS-005 | Alur Draft → In Progress → Pending Review → Finalized; submit mensyaratkan seluruh sampel/karakteristik wajib lengkap, atau N/A yang diizinkan plan dan beralasan. Reviewer independen dapat mengembalikan ke In Progress. Hasil Fail wajib menautkan NCR sebelum finalisasi. | Must |
+| FR-INS-005 | Alur Draft → In Progress → Pending Review → Finalized; submit mensyaratkan seluruh sampel/karakteristik wajib lengkap, atau N/A yang diizinkan snapshot plan dan beralasan. Reviewer independen dapat mengembalikan ke In Progress. Hasil Fail wajib menautkan minimal satu NCR same-site yang sudah diajukan dan tidak berstatus Draft/Rejected sejak submit ke Pending Review; finalisasi memeriksa ulang syarat ini. Draft hasil gagal tetap boleh disimpan tanpa NCR. Perubahan tautan NCR selama Pending Review mengembalikan inspeksi ke In Progress untuk submit ulang. | Must |
 | FR-INS-006 | Finalized mengunci hasil. Koreksi membuat amendment beralasan yang mempertahankan versi lama serta review ulang. Laporan gagal berdisposisi Hold sampai Manager independen mencatat Accepted under concession/Rework/Rejected berikut alasan dan bukti; keputusan ini tidak mengubah Fail menjadi Pass atau menutup NCR otomatis. | Must |
 | FR-INS-007 | Detail/ekspor PDF mencakup snapshot plan, hasil tiap sampel, keputusan, alat, reviewer, waktu, revisi laporan, dan NCR terkait. Ekspor draft berlabel Draft; hitungan dashboard hanya memakai versi final terkini per laporan. | Must |
 
 Penerimaan sampel tidak otomatis menyatakan seluruh lot diterima. Kebijakan release lot dan metode sampling statistik merupakan keputusan terpisah (Q-12).
+
+N/A hanya sah jika `allow_na` aktif pada karakteristik snapshot dan alasan terisi; N/A bukan Pass, Fail, atau hasil ukur nol. Pasangan karakteristik–unit yang diwajibkan dibekukan saat inspeksi dibuat, termasuk jumlah sampel yang berbeda per karakteristik. Unit masuk denominator defect rate bila seluruh pasangan wajibnya selesai dengan hasil atau N/A sah, dan sedikitnya satu karakteristik wajib mempunyai hasil Pass/Fail nyata. Unit dengan seluruh pasangan wajib N/A dikecualikan; laporan semua-N/A dapat direview bila plan mengizinkan, tetapi rate tetap N/A. Penambahan atau pengurangan pasangan untuk menyiasati kelengkapan ditolak. Aturan ini memperinci FR-QPL-003, FR-INS-005, dan FR-ANA-012.
 
 ### 4.10 Kalibrasi alat ukur (R2)
 
@@ -388,6 +414,8 @@ Penerimaan sampel tidak otomatis menyatakan seluruh lot diterima. Kebijakan rele
 | FR-MNT-003 | Work order melalui Open → Assigned → In Progress → Pending Verification → Completed; pelaksana merekam checklist, waktu mulai/selesai, downtime, catatan, suku cadang teks, dan bukti. Verifier independen dapat mengembalikan ke In Progress. | Must |
 | FR-MNT-004 | Penundaan atau Cancel dilakukan Supervisor/Manager berizin dengan alasan; occurrence lama tetap tercatat dan tidak dibuat ulang saat retry. Tugas overdue ditampilkan tanpa mengubah jadwal berikutnya diam-diam. Aset Retired menghentikan jadwal; order terbuka harus diselesaikan atau dibatalkan eksplisit. | Must |
 | FR-MNT-005 | Temuan maintenance dapat ditautkan ke NCR/CAPA. Penyelesaian maintenance tidak otomatis menutup CAPA, mengesahkan kalibrasi, atau mengaktifkan alat yang masih diblokir. Histori per aset dapat difilter dan diekspor. | Must |
+
+Perubahan interval, anchor, checklist, atau PIC jadwal membuat versi jadwal baru untuk occurrence yang belum dibuat. Order yang sudah dibuat tetap memakai snapshot lama; perubahan order dilakukan eksplisit sesuai workflow. Scheduler dan edit jadwal menggunakan urutan transaksi yang konsisten: order memakai satu snapshot versi utuh yang sah saat transaksi dijalankan, tidak campuran field dua versi. Keunikan occurrence memakai identitas jadwal tetap + tanggal occurrence, bukan ID versi; retry atau pergantian versi tidak membuat order kedua untuk tanggal yang sudah terisi. Ini memperinci FR-MNT-001–004.
 
 ### 4.12 Supplier quality (R2)
 
@@ -561,6 +589,18 @@ Skenario berikut adalah dasar acceptance test, bukan bukti bahwa fitur telah dii
 | AC-41 | FR-COM-009, FR-ANA-011 | Given due date kalibrasi/maintenance/sertifikat/training dan scheduler retry; when ambang reminder terlewati; then satu notifikasi per penerima/siklus/ambang dibuat, widget sesuai sumber, dan filter defect yang tak berlaku diberi label. |
 | AC-42 | FR-QPL-004–006 | Given dua aktivasi plan bersamaan; when transaksi selesai; then hanya satu revisi Effective dan ekspor menyebut revisi yang benar. Plan Withdrawn/Obsolete tidak dapat digunakan untuk inspeksi baru. |
 | AC-43 | FR-AUD-010, FR-CMP-002, FR-CMP-005 | Given checklist/bukti snapshot telah disetujui; when template atau revisi sumber diperbarui; then snapshot audit/assessment lama tetap utuh dan perubahan memerlukan review/versi berikutnya, tanpa approval otomatis. |
+| AC-44 | FR-CAPA-004, FR-CAPA-008 | Given rencana approved; when setiap field substansial pada matriks diubah secara terpisah melalui UI/API; then versi baru Draft, alasan wajib, approval lama historis, dan completion/verifikasi baru ditolak sampai approval ulang. Penambahan komentar/bukti yang tidak mengubah dasar keputusan tidak mereset approval. Tenggat operasional lama berlaku sampai revisi disetujui. |
+| AC-45 | FR-CAPA-003–006, FR-CAPA-008 | Given dua action selesai dan efektivitas lulus pada revisi lama; when satu action diubah dan rencana direvisi; then action berubah belum selesai, action identik hanya dibawa selesai dengan referensi bukti serta konfirmasi reviewer dan approver, dan efektivitas wajib dievaluasi ulang. Tanpa konfirmasi carry-forward, action tetap belum selesai; histori lama utuh. |
+| AC-46 | FR-ACC-007, FR-COM-011, FR-TSK-004–005 | Given PIC/reviewer/approver mempunyai tugas terbuka; when akun nonaktif atau role/site/grant yang diperlukan dicabut; then command berikutnya ditolak, indikator Needs Reassignment tampil, tenggat/overdue tetap, keputusan lama sah, dan notifikasi hanya ke pengelola berizin tanpa duplikasi retry. Ketiadaan pengelola sah tidak memicu bypass atau kebocoran sumber ke administrator. |
+| AC-47 | FR-COM-011, FR-CAPA-008 | Given penugasan tertahan atau personel cuti; when pengelola mengganti personel dengan alasan; then pengganti aktif dan berizin dapat mengambil tugas sesuai tahap, histori lama tetap, dan notifikasi mengikuti ACL. Pengganti nonaktif/lintas site/tanpa role atau konflik independensi ditolak; admin tanpa izin sumber tidak dapat mengganti. Penggantian PIC CAPA memicu revisi/approval ulang. |
+| AC-48 | FR-COM-011, NFR-DAT-001–002 | Given approver A dan dua request bersamaan untuk mengganti A ke B serta approve oleh A; when transaksi selesai; then jika penggantian commit dahulu approval A ditolak, dan jika approval commit dahulu penggantian dengan versi lama konflik tanpa membatalkan keputusan sah. Retry tidak menggandakan assignment/notifikasi. |
+| AC-49 | FR-CAPA-004, FR-DOC-004, FR-QPL-004 | Given Manager independen dengan izin review dan approval; when mereview lalu approve versi yang sama; then kedua keputusan terpisah diterima. Approval sebelum review, pada versi berubah, atau oleh author/pelaksana lama yang telah diganti ditolak. Uji masing-masing modul dan pengguna tanpa salah satu izin. |
+| AC-50 | FR-DOC-005–008 | Given dokumen belum pernah terbit; when detail dibuka; then nol Effective sah. Publikasi menghasilkan satu Effective; penggantian atomik tetap satu; penarikan menghasilkan nol tanpa mengaktifkan Superseded. Pembaca mendapat pesan tidak ada revisi berlaku dan revisi lama hanya sesuai hak historisnya. |
+| AC-51 | FR-INS-005–007 | Given inspeksi lengkap dengan Fail; when simpan draft tanpa NCR; then berhasil, tetapi submit ditolak. NCR Draft/Rejected/lintas site/tidak berizin ditolak; NCR submitted yang sah memungkinkan submit. NCR menjadi Rejected sebelum finalisasi membuat finalize ditolak; perubahan tautan mengembalikan ke In Progress dan memerlukan submit ulang. |
+| AC-52 | FR-QPL-003, FR-INS-005, FR-ANA-012 | Given expected pairs bervariasi per unit; when N/A tanpa izin snapshot atau tanpa alasan diisi; then submit ditolak. N/A sah memenuhi kelengkapan tetapi bukan Pass. Dari dua unit, satu seluruh wajib N/A dan satu memiliki Pass nyata tanpa Fail, denominator satu dan rate 0%; semua unit N/A menghasilkan denominator nol dan rate N/A. |
+| AC-53 | FR-ACC-006–007, FR-COM-011 | Given akun dengan sesi aktif dan tugas yang sudah dialihkan; when administrator reset password lalu akun diaktifkan kembali; then sesi lama tetap ditolak, login credential sementara hanya dapat mengganti password, dan sesi bisnis baru tidak mengembalikan izin dicabut atau assignment lama. Penugasan tertahan yang belum dialihkan memerlukan konfirmasi pengelola. Reset oleh pengguna tanpa izin ditolak; secret tidak muncul pada audit/notifikasi. |
+| AC-54 | FR-MNT-001–004, NFR-DAT-001–002, NFR-JOB-001 | Given scheduler dan perubahan versi jadwal bersamaan; when order dibuat dan job diulang; then setiap order memakai snapshot versi utuh, satu order per identitas jadwal/tanggal, dan order lama tidak berubah. Edit versi usang konflik; occurrence cancelled tidak dibuat ulang walau versi berganti. |
+| AC-55 | FR-CAPA-004, FR-CAPA-008, NFR-DAT-001 | Given rencana Pending Approval dengan review sah; when approve dan perubahan rencana dari versi yang sama berjalan bersamaan; then satu command berhasil dan yang lain konflik. Perubahan yang berhasil menghasilkan Draft dengan review/approval lama tidak berlaku; approval yang berhasil hanya menyetujui snapshot yang diperiksa. |
 
 ## 9. Alur spec-driven development
 
@@ -605,7 +645,7 @@ Pertanyaan ini tidak menghalangi penyusunan draft, tetapi jawaban yang relevan h
 | --- | --- | --- |
 | Q-01 | Industri, standar, dan regulasi apa yang dituju: ISO 9001, IATF 16949, ISO 13485, atau lainnya? | QMS generik; tanpa klaim kepatuhan khusus. |
 | Q-02 | Berapa site, jumlah pengguna, dan perkiraan volume NCR/lampiran? | Satu perusahaan multi-site; target performa awal pada bagian 7. |
-| Q-03 | Apakah approver independen tersedia untuk tiap site, dan apakah perlu delegasi saat cuti? | Tidak ada bypass; workflow tertahan bila personel belum tersedia. |
+| Q-03 | Siapa approver independen dan pengganti yang tersedia untuk tiap site? | Mekanisme penggantian ditetapkan FR-COM-011; reviewer/approver boleh orang yang sama sesuai bagian 3.1. Daftar personel harus divalidasi sebelum operasional; tanpa personel sah workflow tertahan. |
 | Q-04 | Apa definisi severity, SLA per severity, dan jalur eskalasi overdue? | Severity empat tingkat; tenggat ditetapkan saat triage; notifikasi dalam aplikasi. |
 | Q-05 | Apakah Pareto utama memakai jumlah NCR, unit defect, biaya, atau nilai scrap? | Jumlah NCR berdasarkan satu kategori utama. |
 | Q-06 | Berapa masa retensi dokumen, catatan kualitas, lampiran, dan audit trail? | Tidak ada penghapusan permanen melalui aplikasi. Kebijakan final wajib sebelum produksi. |
@@ -631,3 +671,4 @@ Pertanyaan ini tidak menghalangi penyusunan draft, tetapi jawaban yang relevan h
 | --- | --- | --- |
 | 0.1.0 | 9 Oktober 2026 | Draft requirements awal untuk enam modul inti dan fondasi spec-driven development. |
 | 0.2.0 | 9 Oktober 2026 | Memetakan 12 kelompok fitur dari video lokal; menambahkan task management, quality plans, inspeksi, kalibrasi, maintenance, supplier quality, training, compliance dan AI auditor; memperkaya analitik/dokumen/audit, role, workflow, model data, NFR, AC-20–43, dan roadmap R1–R3. Mempertahankan kebutuhan tiga bahasa yang sudah ada dan memformalkannya sebagai FR-COM-008. Belum ada implementasi aplikasi. |
+| 0.3.0 | 13 Oktober 2026 | Menutup enam temuan review: matriks perubahan CAPA dan carry-forward action; NCR wajib sejak submit inspeksi gagal; pemulihan akun dan penggantian personel; independensi reviewer/approver eksplisit; nol/maksimal satu Effective; AC-44–55 untuk guard dan concurrency. Memperinci N/A dan versi jadwal; menambah FR-ACC-006–007, FR-CAPA-008, FR-COM-011. Keputusan bisnis eksternal Q-01–21 yang masih relevan tetap terbuka; belum ada implementasi aplikasi. |

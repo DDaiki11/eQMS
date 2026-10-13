@@ -40,6 +40,8 @@ flowchart LR
 
 Assignment/task primitives dibangun pada fondasi, meskipun layar gabungan dan analitik diselesaikan di akhir R1. Identitas pemasok minimal hadir sebelum inspeksi incoming; evaluasi lengkap dapat menyusul. Dokumen tersedia sebelum audit memakai revisi dokumen sebagai bukti. Ini memperinci urutan requirements tanpa mengubah cakupan rilis.
 
+Primitives fondasi mencakup invalidasi assignment akibat perubahan akses, riwayat peserta, penggantian/konfirmasi ulang, notifikasi dan reset password terbatas (FR-ACC-006–007, FR-COM-011). NCR/CAPA menambahkan revisi substansial dan carry-forward action terkonfirmasi (FR-CAPA-008). Slice pertama setelah fondasi membuktikan login → NCR → triage → CAPA → verifikasi → closure → audit trail, sebelum memperluas modul; milestone ini tidak mengurangi Must R1.
+
 ## 3. Strategi implementasi
 
 1. Tutup spike kompatibilitas Node/Next/Prisma/PostgreSQL, library auth dan Docker; buat lockfile serta catatan versi.
@@ -57,4 +59,4 @@ Gate terbuka mengikuti bagian 4 [indeks desain](../../docs/design.md). R1 tidak 
 
 ## 5. Deliverables dan bukti
 
-Desain selesai bila semua FR/NFR terpetakan, 43 AC memiliki test intent, state/izin lintas modul konsisten, relasi data enforceable, dan jalur gagal dijelaskan. Implementasi selesai hanya setelah tests yang direncanakan benar-benar dijalankan serta memenuhi [exit gate](../../docs/design/operations-testing.md). [Tasks](tasks.md) tetap unchecked sampai bukti implementasi ada.
+Desain selesai bila semua FR/NFR terpetakan, 55 AC memiliki test intent, state/izin lintas modul konsisten, relasi data enforceable, dan jalur gagal dijelaskan. Implementasi selesai hanya setelah tests yang direncanakan benar-benar dijalankan serta memenuhi [exit gate](../../docs/design/operations-testing.md). [Tasks](tasks.md) tetap unchecked sampai bukti implementasi ada.

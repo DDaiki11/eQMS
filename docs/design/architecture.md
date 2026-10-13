@@ -78,6 +78,7 @@ Pilih library auth yang mendukung password login dan server-side revocable sessi
 - Tiap request memeriksa session, user aktif, role, module grant dan site membership terkini. Cache izin hanya request-local. Job memeriksa ulang hak aktor saat mulai, sebelum commit hasil, dan sebelum hasil diunduh.
 - Mutasi cookie-auth memakai validasi origin serta CSRF token; GET tidak mengubah data. Login rate limiting per akun/IP tersimpan bersama di PostgreSQL sehingga berlaku lintas instance; respons tidak membedakan akun tidak ada/password salah.
 - Tidak boleh mengubah role/grant/membership sendiri untuk menaikkan hak. Reset password administratif tidak memperlihatkan password lama dan mencabut semua sesi.
+- FR-ACC-006 membatasi pemulihan pada administrator: alasan dan audit wajib, credential sementara sekali pakai disampaikan melalui prosedur internal terverifikasi, login awal hanya untuk ganti password/logout. Tidak ada pemulihan email mandiri; aktivasi kembali tidak memulihkan sesi/grant lama.
 
 `AuthorizationContext` berisi actor ID, role, active sites, grants dan request correlation ID. Policy menerima context + action + metadata entitas + assignment + participant history. Policy menghasilkan `allow/deny` serta query scope, bukan daftar semua data lalu difilter di browser.
 
@@ -91,6 +92,8 @@ Pilih library auth yang mendukung password login dan server-side revocable sessi
 | Dashboard/search/export | Terapkan query scope yang sama dengan detail, sebelum agregasi, snippet dan count |
 
 Independensi dievaluasi terhadap riwayat peserta pada revision/cycle, sehingga mengganti owner sebelum approval tidak menghapus konflik kepentingan. Role Inspector yang mengerjakan satu tugas tidak memperoleh izin melihat seluruh register.
+
+Reviewer dan approver dapat orang yang sama sesuai requirements bagian 3.1 bila kedua izin dan independensi terpenuhi, tetapi keputusan harus berurutan pada subject/hash yang sama. FR-ACC-007/FR-COM-011 memisahkan kelayakan assignment dari status sumber. Pencabutan akses commit tanpa menunggu penggantian tugas; command berikutnya langsung memeriksa user/auth version terkini. Simpan peristiwa invalidasi untuk menandai assignment Needs Reassignment secara persisten; pemulihan akses tidak otomatis menghapus kewajiban konfirmasi ulang. Read path menggabungkan invalidasi/kelayakan terkini dengan proyeksi agar worker yang tertunda tidak menampilkan tugas sebagai dapat dikerjakan. Penggantian hanya oleh pengelola sumber yang sah, bukan otomatis oleh admin akun; approver diganti Manager berizin. Notifikasi pengelola deduplikasi per access-change/assignment; tanpa pengelola sah, admin hanya melihat akun terdampak tanpa metadata sumber. Penggantian CAPA owner/PIC mengikuti revisi rencana; keputusan lama tetap sah pada subject historisnya.
 
 Baseline isolasi site di application policy + scoped repository dan composite FK. Database runtime role bukan superuser/owner. PostgreSQL RLS belum menjadi baseline karena policy dokumen multisite dan assignment membutuhkan desain koneksi yang khusus; jika ditambahkan, harus diuji dengan pooling, worker dan migration. Test isolasi tidak ditunda menunggu RLS. Keputusan ini tercatat di [ADR](../adr/README.md).
 

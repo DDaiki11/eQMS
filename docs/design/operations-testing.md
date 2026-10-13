@@ -92,6 +92,21 @@ Kandidat tool implementasi: unit runner TypeScript, Playwright untuk E2E, Postgr
 
 Security tests menggunakan dua site, tiga role, author versus reviewer, session aktif kemudian direvoke, dokumen multisite, dan linked record dengan ACL berbeda. Concurrency tests memakai koneksi/transaksi sungguhan dengan barrier tersinkron, bukan mock Prisma. Clock dependency diinjeksi untuk deadline, leap year, locale dan effective date. Seed synthetic demo tidak digunakan pada produksi.
 
+Tambahan wajib untuk requirements v0.3.0:
+
+| Suite / task | Fixture dan hasil yang dibuktikan | AC |
+| --- | --- | --- |
+| `quality-workflow`, `transaction-faults` / T02 | Parameterisasi setiap field matriks CAPA, dua action selesai dengan satu berubah, due lama/usulan, carry-forward dikonfirmasi dua tahap, efektivitas baru; barrier edit versus approve | AC-44/45/55 |
+| `access-policy`, `task-notification` / T01/T05 | Nonaktif/cabut role/site/grant, pengelola tidak tersedia, administrator tanpa izin sumber, cuti dan konfirmasi ulang; histori/due tetap dan notifikasi tanpa bocor/duplikasi | AC-46/47/53 |
+| `transaction-faults` / T01/T05 | Dua koneksi approve versus reassign; paksa masing-masing urutan commit dan retry; hanya assignment sah dapat memutuskan | AC-48 |
+| `access-policy` / T02/T03/T06 | Manager yang sama review lalu approve pada masing-masing CAPA/dokumen/plan; negatif author/pelaksana lama, izin tahap hilang, urutan salah, versi berubah | AC-49 |
+| `document-versioning` / T03 | Belum terbit → terbit → revisi baru → obsolete, nol/satu Effective dan tanpa fallback Superseded | AC-50 |
+| `inspection-calibration`, `analytics` / T06/T07 | Fail draft tanpa NCR, submit/finalize dengan NCR tidak sah, reject NCR sebelum finalize, ubah link/re-submit, expected pairs berbeda, N/A tanpa izin/alasan dan unit semua-N/A | AC-28/51/52 |
+| `access-policy` / T01 | Reset administratif mencabut sesi; login sementara tidak dapat mengakses bisnis; ganti password/aktivasi tidak memulihkan izin/assignment, audit tanpa secret | AC-53 |
+| `maintenance-supplier`, `transaction-faults` / T08 | Barrier edit jadwal versus scheduler dua urutan commit; cancelled slot tetap unik lintas versi; snapshot order tidak berubah | AC-54 |
+
+Untuk setiap Must, feature spec wajib merinci actor/state/input yang diterima dan ditolak, efek atomik, histori dan fixture. “Uji turunan” pada traceability harus diganti/ditambah referensi kasus konkret sebelum fitur siap diimplementasikan. AC tambahan adalah kontrak pengujian, belum merupakan hasil eksekusi.
+
 ## O7. Exit gate dan status verifikasi desain
 
 Sebelum merge implementasi: setiap requirement Must fitur mempunyai test/AC mapping, contract tests lulus, migration/recovery impact direview, UI error states ada, serta tidak ada bypass audit/policy. Sebelum rilis: semua Must rilis, NFR relevan, compatibility browser saat rilis, scan file, restore dan load evidence lulus; Should yang ditunda dicatat.

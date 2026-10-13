@@ -61,6 +61,7 @@ Semua entitas mutable memiliki `created_at/by`, `updated_at/by`, `version`; enti
 | CompanySettings | timezone, locale default, currency, numbering policy | Satu perusahaan; perubahan beralasan |
 | User, Session | normalized email, display name, role, active, auth version, locale; session expiry/revoked | Unique email; session token lookup unik; indeks expiry |
 | SiteMembership, ModuleGrant | user/site; user/module/action/site | Unique kombinasi; FK User/Site |
+| WorkflowAssignment, AssignmentChange, AccessChange | source/stage/cycle, user, validity/auth version; old/new assignment, reason, actor; access change event/version | Assignment lama immutable setelah diganti; Needs Reassignment terpisah dari workflow; konfirmasi ulang wajib sesudah invalidasi meski akses pulih; unique source/stage/slot untuk assignment aktif; audit/history participant tetap utuh |
 | Site, ProcessArea, AreaResponsibility | code/name/active; area/site; user/area berlaku | Unique code/site; auditor tidak boleh area responsibility sendiri |
 | DefectCategory, MasterValue | code, label, active, kind | Unique kind/code; deactivation menggantikan delete |
 | QualityRecord | kind, site_id, business_no, discarded_at | Unique nomor bisnis; FK scope; indeks kind/site |
@@ -68,6 +69,7 @@ Semua entitas mutable memiliki `created_at/by`, `updated_at/by`, `version`; enti
 | NcrSubmission, NcrCorrection | ncr, sequence, payload snapshot/hash, reason, actor | Unique ncr/sequence; immutable; first_submitted_at write-once |
 | Capa, CapaPlanRevision | source kind, status, cycle, owner, due_date; root cause/method, preventive risk, plan snapshot | Unique capa/revision; critical fields frozen setelah submit |
 | ActionItem, EffectivenessCheck | plan revision, PIC, due/status/evidence; capa cycle, independent verifier, criteria/evaluation time/result | FK plan/cycle; parent lock saat update; evidence required sebelum complete |
+| CapaActionCarryForward | new action, old action, evidence references, reviewer/approver confirmation | Hanya action identik menurut isi/PIC/due; dua keputusan pada subject baru; tanpa konfirmasi action belum selesai; effectiveness tidak di-carry-forward |
 | NcrCapaLink, FindingCapaLink, FindingNcrLink | source/target ID, site, supports_closure, link reason | Composite FK sama site; unique pair; penghapusan link submitted dilarang, koreksi berversi |
 | Audit, AuditAssignment | record, scope, area, schedule, type, lead, status; assigned user/role | Indeks site/status/date; unique audit/user/role |
 | ChecklistTemplate, TemplateVersion, ChecklistSnapshot | versioned questions; frozen copy ketika audit start | Unique template/version; snapshot immutable |
@@ -85,6 +87,8 @@ Semua entitas mutable memiliki `created_at/by`, `updated_at/by`, `version`; enti
 | ExportJob, BusinessNumberAllocation | scope/filters/revision manifest/file; type/site/year/sequence/status | Export private; nomor allocated tidak dipakai ulang |
 
 User password/account/session fields akhir mengikuti auth adapter terpilih. Domain policy tidak bergantung nama tabel library. Tidak menyimpan credential dalam AuditEvent.
+
+User/session mendukung `must_change_password` dan sesi pemulihan terbatas; credential sementara tidak disimpan sebagai plaintext, dipakai sekali, lalu dirotasi. CapaPlanRevision menyimpan diff/reason dan referensi revision sebelumnya, usulan owner/PIC/due serta approved operational due terpisah agar revisi Draft tidak menghapus overdue. ApprovalSubject versi lama dan histori participant tetap tersimpan; pergantian assignment bukan penggantian identitas author. Assignment sumber mengikuti ACL parent; akses global admin tidak membuka isi sumber.
 
 ## D4. R2 — data operasional
 
@@ -127,7 +131,7 @@ erDiagram
 | SupplierEvaluation, EvaluationScore | supplier site, period, state, evaluator, criteria snapshot/next review; score/weight/evidence | Score 1–5, weight ≥0; total 100 divalidasi transaction parent |
 | SupplierAssessment, AssessmentResponse | supplier site/template snapshot, external respondent/internal recorder; answers/evidence | Kedua identitas terpisah; tanpa akun portal tersirat |
 
-Expected sample pairs menangani jumlah sampel berbeda per karakteristik. Unit eligible denominator hanya bila semua karakteristik wajib yang applicable untuk unit tersebut selesai; N/A yang sah bukan Fail. Pengukuran yang tidak diharapkan ditolak. Defect rate memakai unit unik dari current final revision per inspection, tanpa menggandakan amendment.
+Expected sample pairs menangani jumlah sampel berbeda per karakteristik. Unit eligible denominator hanya bila semua karakteristik wajib yang applicable untuk unit tersebut selesai (hasil nyata atau N/A sah) dan sedikitnya satu hasil wajib Pass/Fail nyata tersedia. N/A memerlukan allow_na snapshot dan alasan; bukan Pass/Fail. Unit seluruh wajib N/A dikecualikan, semua unit demikian menghasilkan rate N/A. Pengukuran yang tidak diharapkan ditolak. Defect rate memakai unit unik dari current final revision per inspection, tanpa menggandakan amendment. MaintenanceSchedule mempunyai identitas stabil dan ScheduleVersion immutable; WorkOrder menautkan versi snapshot, sementara unique occurrence tetap memakai identitas schedule, bukan version.
 
 ## D5. R3 — data kompetensi dan compliance
 
